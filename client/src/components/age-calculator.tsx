@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -190,32 +189,22 @@ export default function AgeCalculator() {
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12 animate-fade-in">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4 glow-text">
             <Cake className="inline-block mr-4 text-primary" size={60} aria-hidden="true" />
             Age Calculator
           </h1>
           <p className="text-xl text-muted-foreground">Discover your life's journey in beautiful detail</p>
-        </motion.div>
+        </div>
 
         {/* Main Calculator Section */}
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           {/* Date Picker Card */}
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-1"
-          >
+          <div className="lg:col-span-1 animate-slide-in-left">
             <Card className="glass-card hover-scale" data-testid="date-picker-card">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Calendar className="text-primary mr-3" />
+                  <Calendar className="text-primary mr-3" aria-hidden="true" />
                   Birth Date
                 </h2>
                 <div className="space-y-4">
@@ -242,19 +231,14 @@ export default function AgeCalculator() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Main Age Display */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="lg:col-span-2"
-          >
+          <div className="lg:col-span-2 animate-scale-in">
             <Card className="glass-card hover-scale" data-testid="main-age-display">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Clock className="text-secondary mr-3" />
+                  <Clock className="text-secondary mr-3" aria-hidden="true" />
                   Your Age Right Now
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -304,21 +288,16 @@ export default function AgeCalculator() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
 
         {/* Next Birthday Countdown */}
         {countdown && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mb-8"
-          >
+          <div className="mb-8 animate-slide-up">
             <Card className="glass-card hover-scale" data-testid="birthday-countdown">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Gift className="text-primary mr-3" />
+                  <Gift className="text-primary mr-3" aria-hidden="true" />
                   Next Birthday Countdown
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -354,35 +333,27 @@ export default function AgeCalculator() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         )}
 
         {/* Life Milestones Progress */}
         {age && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="mb-8"
-          >
+          <div className="mb-8 animate-slide-up">
             <Card className="glass-card hover-scale" data-testid="life-milestones">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <TrendingUp className="text-secondary mr-3" />
+                  <TrendingUp className="text-secondary mr-3" aria-hidden="true" />
                   Life Milestones
                 </h2>
                 <div className="space-y-6">
-                  {milestones.map((milestone, index) => {
+                  {milestones.map((milestone) => {
                     const current = milestone.current || age.years;
                     const percentage = Math.min((current / milestone.target) * 100, 100);
                     
                     return (
-                      <motion.div
+                      <div
                         key={milestone.name}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                        className="milestone-card rounded-lg p-4"
+                        className="milestone-card rounded-lg p-4 animate-slide-in-right"
                         data-testid={`milestone-${milestone.name.toLowerCase().replace(/\s+/g, '-')}`}
                       >
                         <div className="flex justify-between items-center mb-2">
@@ -395,36 +366,25 @@ export default function AgeCalculator() {
                         <div className="text-right text-sm text-muted-foreground">
                           {percentage.toFixed(1)}%
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         )}
 
         {/* Alternative Age Units */}
         {alternativeUnits.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1.0 }}
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-            data-testid="alternative-units"
-          >
-            {alternativeUnits.map((unit, index) => {
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" data-testid="alternative-units">
+            {alternativeUnits.map((unit) => {
               const IconComponent = unit.icon;
               return (
-                <motion.div
-                  key={unit.name}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
-                >
+                <div key={unit.name} className="animate-scale-in">
                   <Card className="age-unit-card hover-scale text-center" data-testid={`unit-${unit.name.toLowerCase().replace(/\s+/g, '-')}`}>
                     <CardContent className="p-6">
-                      <IconComponent className="text-3xl text-primary mb-3 mx-auto" size={32} />
+                      <IconComponent className="text-3xl text-primary mb-3 mx-auto" size={32} aria-hidden="true" />
                       <AnimatedNumber 
                         value={unit.value} 
                         className="text-2xl font-bold text-primary mb-2" 
@@ -432,46 +392,39 @@ export default function AgeCalculator() {
                       <div className="text-muted-foreground text-sm">{unit.name}</div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         )}
 
         {/* Fun Facts */}
         {funFacts.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.2 }}
-          >
+          <div className="animate-slide-up">
             <Card className="glass-card hover-scale" data-testid="fun-facts">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Lightbulb className="text-accent mr-3" />
+                  <Lightbulb className="text-accent mr-3" aria-hidden="true" />
                   Fun Facts About Your Life
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {funFacts.map((fact, index) => {
                     const IconComponent = fact.icon;
                     return (
-                      <motion.div
+                      <div
                         key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: 1.2 + index * 0.1 }}
                         className="text-center p-4"
                         data-testid={`fact-${index}`}
                       >
-                        <IconComponent className="text-2xl text-accent mb-3 mx-auto" size={24} />
+                        <IconComponent className="text-2xl text-accent mb-3 mx-auto" size={24} aria-hidden="true" />
                         <p className="text-sm text-muted-foreground">{fact.text}</p>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

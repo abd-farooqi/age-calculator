@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 
 interface AnimatedNumberProps {
   value: number;
@@ -44,14 +43,8 @@ export default function AnimatedNumber({
   }, [value, previousValue, displayValue, duration]);
 
   return (
-    <motion.div
-      key={value}
-      initial={{ scale: 0.8, opacity: 0.8 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`number-display font-mono tabular-nums ${className}`}
-    >
+    <div className={`number-display font-mono tabular-nums transition-all duration-300 ${className}`}>
       {displayValue.toLocaleString()}
-    </motion.div>
+    </div>
   );
 }
