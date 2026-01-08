@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { copyFileSync } from "fs";
 
 export default defineConfig({
   plugins: [
@@ -18,6 +19,19 @@ export default defineConfig({
           ),
         ]
       : []),
+    {
+      name: "copy-redirects",
+      closeBundle() {
+        const redirectsSrc = path.resolve(import.meta.dirname, "client", "_redirects");
+        const redirectsDest = path.resolve(import.meta.dirname, "dist", "public", "_redirects");
+        try {
+          copyFileSync(redirectsSrc, redirectsDest);
+          console.log("_redirects file copied successfully");
+        } catch (err) {
+          console.warn("Warning: Could not copy _redirects file", err);
+        }
+      }
+    }
   ],
   resolve: {
     alias: {
