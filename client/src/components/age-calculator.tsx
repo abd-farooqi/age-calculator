@@ -197,7 +197,7 @@ export default function AgeCalculator() {
           className="text-center mb-12"
         >
           <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4 glow-text">
-            <Cake className="inline-block mr-4 text-primary" size={60} />
+            <Cake className="inline-block mr-4 text-primary" size={60} aria-hidden="true" />
             Age Calculator
           </h1>
           <p className="text-xl text-muted-foreground">Discover your life's journey in beautiful detail</p>
@@ -226,14 +226,17 @@ export default function AgeCalculator() {
                     max={today}
                     className="text-lg p-4"
                     data-testid="input-birth-date"
+                    aria-label="Enter your birth date"
+                    required
                   />
                   <Button
                     onClick={handleCalculate}
                     disabled={!birthDate || isCalculating}
                     className="w-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all duration-300 hover:scale-105 py-4 text-lg font-semibold"
                     data-testid="button-calculate"
+                    aria-label="Calculate your age"
                   >
-                    <Calculator className="mr-2" />
+                    <Calculator className="mr-2" aria-hidden="true" />
                     {isCalculating ? 'Calculating...' : 'Calculate Age'}
                   </Button>
                 </div>

@@ -1,80 +1,41 @@
-import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { useMemo } from "react";
 
 interface Particle {
   id: number;
   x: number;
   y: number;
   size: number;
-  animationDelay: number;
-  animationDuration: number;
+  delay: number;
+  duration: number;
 }
 
 export default function ParticleBackground() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const particles: Particle[] = [];
-    const particleCount = 50;
-
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 4 + 1,
-        animationDelay: Math.random() * 8,
-        animationDuration: Math.random() * 4 + 4,
-      });
-    }
-
-    return () => {
-      // Cleanup if needed
-    };
-  }, []);
-
-  const particleVariants = {
-    animate: {
-      y: [0, -20, 0],
-      rotate: [0, 180, 360],
-      opacity: [0.7, 1, 0.7],
-      transition: {
-        duration: 8,
-        repeat: Infinity,
-        ease: "easeInOut",
-      },
-    },
-  };
-
-  const particles = Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 4 + 1,
-    delay: Math.random() * 8,
-    duration: Math.random() * 4 + 4,
-  }));
+  const particles = useMemo(() => 
+    Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      delay: Math.random() * 5,
+      duration: Math.random() * 3 + 5,
+    }))
+  , []);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden">
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
       {particles.map((particle) => (
-        <motion.div
+        <div
           key={particle.id}
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full animate-float"
           style={{
             left: `${particle.x}%`,
             top: `${particle.y}%`,
             width: `${particle.size}px`,
             height: `${particle.size}px`,
-            background: `radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, transparent 70%)`,
-          }}
-          variants={particleVariants}
-          animate="animate"
-          transition={{
-            delay: particle.delay,
-            duration: particle.duration,
-            repeat: Infinity,
-            ease: "easeInOut",
+            background: `radial-gradient(circle, rgba(99, 102, 241, 0.6) 0%, transparent 70%)`,
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`,
+            willChange: 'transform',
           }}
         />
       ))}
