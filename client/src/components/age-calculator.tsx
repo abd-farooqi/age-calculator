@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import AnimatedNumber from "./animated-number";
+import html2canvas from "html2canvas";
 import { 
   Calendar, 
   Clock, 
@@ -17,7 +18,10 @@ import {
   CalendarDays,
   Lightbulb,
   Calculator,
-  Cake
+  Cake,
+  Download,
+  Share2,
+  Star
 } from "lucide-react";
 
 interface AgeData {
@@ -28,6 +32,12 @@ interface AgeData {
   minutes: number;
   seconds: number;
   totalMs: number;
+}
+
+interface HijriDate {
+  year: number;
+  month: number;
+  day: number;
 }
 
 interface CountdownData {
@@ -42,9 +52,42 @@ export default function AgeCalculator() {
   const [age, setAge] = useState<AgeData | null>(null);
   const [countdown, setCountdown] = useState<CountdownData | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
 
   // Get today's date for max attribute
   const today = new Date().toISOString().split('T')[0];
+
+  // Convert Gregorian to Hijri (Islamic Calendar)
+  const gregorianToHijri = (date: Date): HijriDate => {
+    // Using the Kuwaiti algorithm for Hijri conversion
+    const gYear = date.getFullYear();
+    const gMonth = date.getMonth() + 1;
+    const gDay = date.getDate();
+    
+    let wd;
+    if ((gYear > 1582) || ((gYear === 1582) && (gMonth > 10)) || ((gYear === 1582) && (gMonth === 10) && (gDay > 14))) {
+      const jd = Math.floor((1461 * (gYear + 4800 + Math.floor((gMonth - 14) / 12))) / 4) +
+                 Math.floor((367 * (gMonth - 2 - 12 * Math.floor((gMonth - 14) / 12))) / 12) -
+                 Math.floor((3 * Math.floor((gYear + 4900 + Math.floor((gMonth - 14) / 12)) / 100)) / 4) +
+                 gDay - 32075;
+      wd = jd % 7 + 1;
+      const l = jd - 1948440 + 10632;
+      const n = Math.floor((l - 1) / 10631);
+      const l1 = l - 10631 * n + 354;
+      const j = (Math.floor((10985 - l1) / 5316)) * (Math.floor((50 * l1) / 17719)) +
+                (Math.floor(l1 / 5670)) * (Math.floor((43 * l1) / 15238));
+      const l2 = l1 - (Math.floor((30 - j) / 15)) * (Math.floor((17719 * j) / 50)) -
+                 (Math.floor(j / 16)) * (Math.floor((15238 * j) / 43)) + 29;
+      const hMonth = Math.floor((24 * l2) / 709);
+      const hDay = l2 - Math.floor((709 * hMonth) / 24);
+      const hYear = 30 * n + j - 30;
+      
+      return { year: hYear, month: hMonth, day: hDay };
+    }
+    
+    return { year: 0, month: 0, day: 0 };
+  };
 
   const calculateAge = (birthDate: string): AgeData | null => {
     const now = new Date();
@@ -81,6 +124,57 @@ export default function AgeCalculator() {
     const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
     
     return { days, hours, minutes, seconds };
+  };
+
+  // Export as Image
+  const handleExportImage = async () => {
+    if (!exportRef.current) return;
+    
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(exportRef.current, {
+        backgroundColor: '#0a0118',
+        scale: 2,
+        logging: false,
+      });
+      
+      const link = document.createElement('a');
+      link.download = `my-age-${new Date().getTime()}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export image. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Share functionality
+  const handleShare = async () => {
+    if (!age) return;
+    
+    const shareText = `I'm ${age.years} years old! That's ${Math.floor(age.totalMs / (1000 * 60 * 60 * 24)).toLocaleString()} days, ${Math.floor(age.totalMs / (1000 * 60 * 60)).toLocaleString()} hours! Calculate your age at ${window.location.href}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'My Age Calculator Results',
+          text: shareText,
+          url: window.location.href,
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          // Fallback to clipboard
+          navigator.clipboard.writeText(shareText);
+          alert('Copied to clipboard!');
+        }
+      }
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(shareText);
+      alert('Share text copied to clipboard!');
+    }
   };
 
   const handleCalculate = () => {
@@ -146,10 +240,41 @@ export default function AgeCalculator() {
     },
     { 
       name: 'Heartbeats (~72bpm)', 
-      value: Math.floor(age.totalMs / (1000 * 60) * 72), 
+      value: Math.floor(age.totalMs / 1000 * 1.2), 
       icon: Heart 
     }
   ] : [];
+
+  // Hijri (Islamic) Calendar Age
+  const hijriAge = birthDate ? (() => {
+    const birth = new Date(birthDate);
+    const now = new Date();
+    const birthHijri = gregorianToHijri(birth);
+    const nowHijri = gregorianToHijri(now);
+    
+    let years = nowHijri.year - birthHijri.year;
+    let months = nowHijri.month - birthHijri.month;
+    let days = nowHijri.day - birthHijri.day;
+    
+    if (days < 0) {
+      months--;
+      days += 30; // Approximate
+    }
+    
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    return { years, months, days };
+  })() : null;
+
+  // Life Progress (assuming 80 year average lifespan)
+  const lifeProgress = age ? {
+    years: Math.min((age.years / 80) * 100, 100),
+    decades: Math.min((age.years / 10) * 100, 1000),
+    quarters: Math.min((age.years / 20) * 100, 400),
+  } : null;
 
   const funFacts = age ? [
     { 
@@ -180,7 +305,7 @@ export default function AgeCalculator() {
 
   return (
     <div className="min-h-screen py-12 px-4 relative">
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10" ref={exportRef}>
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
           <div className="inline-flex items-center justify-center mb-6">
@@ -203,6 +328,27 @@ export default function AgeCalculator() {
             <div className="h-1 w-20 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full"></div>
           </div>
         </div>
+
+        {/* Share Buttons */}
+        {age && (
+          <div className="flex justify-center gap-4 mb-8 animate-fade-in">
+            <Button
+              onClick={handleExportImage}
+              disabled={isExporting}
+              className="bg-gradient-to-r from-primary to-secondary hover:shadow-lg hover:shadow-primary/50 transition-all duration-300"
+            >
+              <Download className="mr-2" size={18} />
+              {isExporting ? 'Exporting...' : 'Download Image'}
+            </Button>
+            <Button
+              onClick={handleShare}
+              className="bg-gradient-to-r from-secondary to-accent hover:shadow-lg hover:shadow-secondary/50 transition-all duration-300"
+            >
+              <Share2 className="mr-2" size={18} />
+              Share Results
+            </Button>
+          </div>
+        )}
 
         {/* Main Calculator Section */}
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
@@ -357,6 +503,187 @@ export default function AgeCalculator() {
                       duration={300}
                     />
                     <div className="text-muted-foreground">Seconds</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Islamic (Hijri) Calendar Age */}
+        {hijriAge && (
+          <div className="mb-8 animate-slide-up">
+            <Card className="glass-card hover-scale" data-testid="hijri-age">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                  <Star className="text-accent mr-3" aria-hidden="true" />
+                  Islamic Calendar (Hijri) Age
+                </h2>
+                <div className="grid grid-cols-3 gap-6 text-center">
+                  <div className="group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-accent/20 blur-xl group-hover:bg-accent/30 transition-all duration-300 rounded-full"></div>
+                      <div className="relative text-5xl font-black text-accent mb-2">
+                        {hijriAge.years}
+                      </div>
+                    </div>
+                    <div className="text-muted-foreground font-semibold text-sm uppercase tracking-wider">Years</div>
+                  </div>
+                  <div className="group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-primary/20 blur-xl group-hover:bg-primary/30 transition-all duration-300 rounded-full"></div>
+                      <div className="relative text-5xl font-black text-primary mb-2">
+                        {hijriAge.months}
+                      </div>
+                    </div>
+                    <div className="text-muted-foreground font-semibold text-sm uppercase tracking-wider">Months</div>
+                  </div>
+                  <div className="group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-secondary/20 blur-xl group-hover:bg-secondary/30 transition-all duration-300 rounded-full"></div>
+                      <div className="relative text-5xl font-black text-secondary mb-2">
+                        {hijriAge.days}
+                      </div>
+                    </div>
+                    <div className="text-muted-foreground font-semibold text-sm uppercase tracking-wider">Days</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Life Progress Visualization */}
+        {lifeProgress && age && (
+          <div className="mb-8 animate-scale-in">
+            <Card className="glass-card hover-scale" data-testid="life-progress">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                  <TrendingUp className="text-primary mr-3" aria-hidden="true" />
+                  Life Journey Progress
+                </h2>
+                <div className="grid md:grid-cols-3 gap-8">
+                  {/* Years Progress */}
+                  <div className="text-center">
+                    <div className="relative w-40 h-40 mx-auto mb-4">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle
+                          cx="80"
+                          cy="80"
+                          r="70"
+                          stroke="currentColor"
+                          strokeWidth="12"
+                          fill="none"
+                          className="text-muted/20"
+                        />
+                        <circle
+                          cx="80"
+                          cy="80"
+                          r="70"
+                          stroke="url(#gradient1)"
+                          strokeWidth="12"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 70}`}
+                          strokeDashoffset={`${2 * Math.PI * 70 * (1 - lifeProgress.years / 100)}`}
+                          className="transition-all duration-1000"
+                          strokeLinecap="round"
+                        />
+                        <defs>
+                          <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="hsl(280, 100%, 70%)" />
+                            <stop offset="100%" stopColor="hsl(330, 100%, 65%)" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className="text-3xl font-black text-primary">{lifeProgress.years.toFixed(1)}%</div>
+                        <div className="text-xs text-muted-foreground">of 80 years</div>
+                      </div>
+                    </div>
+                    <div className="font-medium">Life Span</div>
+                    <div className="text-sm text-muted-foreground">{age.years} / 80 years</div>
+                  </div>
+
+                  {/* Decades Progress */}
+                  <div className="text-center">
+                    <div className="relative w-40 h-40 mx-auto mb-4">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle
+                          cx="80"
+                          cy="80"
+                          r="70"
+                          stroke="currentColor"
+                          strokeWidth="12"
+                          fill="none"
+                          className="text-muted/20"
+                        />
+                        <circle
+                          cx="80"
+                          cy="80"
+                          r="70"
+                          stroke="url(#gradient2)"
+                          strokeWidth="12"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 70}`}
+                          strokeDashoffset={`${2 * Math.PI * 70 * (1 - (lifeProgress.decades % 100) / 100)}`}
+                          className="transition-all duration-1000"
+                          strokeLinecap="round"
+                        />
+                        <defs>
+                          <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="hsl(200, 100%, 60%)" />
+                            <stop offset="100%" stopColor="hsl(280, 100%, 70%)" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className="text-3xl font-black text-secondary">{Math.floor(age.years / 10)}</div>
+                        <div className="text-xs text-muted-foreground">decades</div>
+                      </div>
+                    </div>
+                    <div className="font-medium">Current Decade</div>
+                    <div className="text-sm text-muted-foreground">{(lifeProgress.decades % 100).toFixed(1)}% complete</div>
+                  </div>
+
+                  {/* This Year Progress */}
+                  <div className="text-center">
+                    <div className="relative w-40 h-40 mx-auto mb-4">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle
+                          cx="80"
+                          cy="80"
+                          r="70"
+                          stroke="currentColor"
+                          strokeWidth="12"
+                          fill="none"
+                          className="text-muted/20"
+                        />
+                        <circle
+                          cx="80"
+                          cy="80"
+                          r="70"
+                          stroke="url(#gradient3)"
+                          strokeWidth="12"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 70}`}
+                          strokeDashoffset={`${2 * Math.PI * 70 * (1 - ((age.months * 30 + age.days) / 365))}`}
+                          className="transition-all duration-1000"
+                          strokeLinecap="round"
+                        />
+                        <defs>
+                          <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="hsl(330, 100%, 65%)" />
+                            <stop offset="100%" stopColor="hsl(200, 100%, 60%)" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className="text-3xl font-black text-accent">{Math.floor((age.months * 30 + age.days) / 365 * 100)}%</div>
+                        <div className="text-xs text-muted-foreground">this year</div>
+                      </div>
+                    </div>
+                    <div className="font-medium">Current Year</div>
+                    <div className="text-sm text-muted-foreground">{age.months}m {age.days}d into year {age.years + 1}</div>
                   </div>
                 </div>
               </CardContent>
