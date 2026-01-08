@@ -116,44 +116,37 @@ export default function AgeCalculator() {
   }, [birthDate, age]);
 
   const milestones = [
-    { name: 'Teenager', target: 13, unit: 'years' },
-    { name: 'Adult', target: 18, unit: 'years' },
-    { name: 'Quarter Century', target: 25, unit: 'years' },
-    { name: 'Midlife', target: 40, unit: 'years' },
-    { name: 'Retirement', target: 65, unit: 'years' },
-    { 
-      name: 'Days Lived', 
-      target: 10000, 
-      unit: 'days', 
-      current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 
-    },
-    { 
-      name: 'Hours Lived', 
-      target: 100000, 
-      unit: 'hours', 
-      current: age ? Math.floor(age.totalMs / (1000 * 60 * 60)) : 0 
-    }
+    { name: 'Can Vote (18)', target: 18, unit: 'years' },
+    { name: 'Legal Drinking Age (21)', target: 21, unit: 'years' },
+    { name: 'Quarter Century (25)', target: 25, unit: 'years' },
+    { name: 'The Big 3-0', target: 30, unit: 'years' },
+    { name: 'Fabulous 40s', target: 40, unit: 'years' },
+    { name: 'Golden 50s', target: 50, unit: 'years' },
+    { name: '1 Year Anniversary', target: 365, unit: 'days', current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 },
+    { name: '1000 Days on Earth', target: 1000, unit: 'days', current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 },
+    { name: '1 Million Minutes', target: 1000000, unit: 'minutes', current: age ? Math.floor(age.totalMs / (1000 * 60)) : 0 },
+    { name: '1 Billion Seconds', target: 1000000000, unit: 'seconds', current: age ? Math.floor(age.totalMs / 1000) : 0 }
   ];
 
   const alternativeUnits = age ? [
     { 
-      name: 'Days Lived', 
+      name: 'Total Days', 
       value: Math.floor(age.totalMs / (1000 * 60 * 60 * 24)), 
       icon: Sun 
     },
     { 
-      name: 'Hours Lived', 
+      name: 'Total Weeks', 
+      value: Math.floor(age.totalMs / (1000 * 60 * 60 * 24 * 7)), 
+      icon: CalendarDays 
+    },
+    { 
+      name: 'Total Hours', 
       value: Math.floor(age.totalMs / (1000 * 60 * 60)), 
       icon: Clock 
     },
     { 
-      name: 'Minutes Lived', 
-      value: Math.floor(age.totalMs / (1000 * 60)), 
-      icon: Clock 
-    },
-    { 
-      name: 'Heartbeats', 
-      value: Math.floor(age.totalMs / (1000 * 60) * 1.2), 
+      name: 'Heartbeats (~72bpm)', 
+      value: Math.floor(age.totalMs / (1000 * 60) * 72), 
       icon: Heart 
     }
   ] : [];
@@ -161,27 +154,27 @@ export default function AgeCalculator() {
   const funFacts = age ? [
     { 
       icon: Moon, 
-      text: `You've experienced ${Math.floor(age.totalMs / (1000 * 60 * 60 * 24)).toLocaleString()} sunrises and sunsets` 
+      text: `You've witnessed ${Math.floor(age.totalMs / (1000 * 60 * 60 * 24)).toLocaleString()} sunrises` 
     },
     { 
       icon: Bed, 
-      text: `You've slept approximately ${Math.floor(Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) * 8 / 24).toLocaleString()} days` 
+      text: `You've slept roughly ${Math.floor(Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) / 3).toLocaleString()} days (assuming 8hrs/day)` 
     },
     { 
       icon: Globe, 
-      text: `Earth has orbited the sun ${age.years} times since you were born` 
+      text: `Earth traveled ${(age.years * 584000000).toLocaleString()} miles around the sun with you` 
     },
     { 
       icon: Heart, 
-      text: `Your heart has beaten approximately ${Math.floor(age.totalMs / (1000 * 60) * 1.2).toLocaleString()} times` 
+      text: `Your heart beat about ${Math.floor(age.totalMs / 1000 * 1.2).toLocaleString()} times (~72 bpm)` 
     },
     { 
       icon: Cake, 
-      text: `You've celebrated ${age.years} birthdays` 
+      text: `You blew out ${age.years * (age.years + 1) / 2} birthday candles total` 
     },
     { 
       icon: CalendarDays, 
-      text: `You've lived through ${Math.floor(Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) / 7).toLocaleString()} weeks` 
+      text: `That's ${Math.floor(Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) / 7).toLocaleString()} weeks of your unique journey` 
     }
   ] : [];
 
