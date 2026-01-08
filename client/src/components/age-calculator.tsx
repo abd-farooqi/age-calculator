@@ -116,14 +116,14 @@ export default function AgeCalculator() {
   }, [birthDate, age]);
 
   const milestones = [
-    { name: 'Can Vote (18)', target: 18, unit: 'years' },
-    { name: 'Legal Drinking Age (21)', target: 21, unit: 'years' },
-    { name: 'Quarter Century (25)', target: 25, unit: 'years' },
+    { name: 'Sweet 16', target: 16, unit: 'years' },
+    { name: 'Adult (18)', target: 18, unit: 'years' },
+    { name: 'Quarter Century', target: 25, unit: 'years' },
     { name: 'The Big 3-0', target: 30, unit: 'years' },
-    { name: 'Fabulous 40s', target: 40, unit: 'years' },
-    { name: 'Golden 50s', target: 50, unit: 'years' },
-    { name: '1 Year Anniversary', target: 365, unit: 'days', current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 },
-    { name: '1000 Days on Earth', target: 1000, unit: 'days', current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 },
+    { name: 'Wise 40s', target: 40, unit: 'years' },
+    { name: 'Half Century', target: 50, unit: 'years' },
+    { name: '1000 Days Milestone', target: 1000, unit: 'days', current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 },
+    { name: '5000 Days Milestone', target: 5000, unit: 'days', current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 },
     { name: '1 Million Minutes', target: 1000000, unit: 'minutes', current: age ? Math.floor(age.totalMs / (1000 * 60)) : 0 },
     { name: '1 Billion Seconds', target: 1000000000, unit: 'seconds', current: age ? Math.floor(age.totalMs / 1000) : 0 }
   ];
