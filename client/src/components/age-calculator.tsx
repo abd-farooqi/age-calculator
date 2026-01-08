@@ -196,11 +196,10 @@ export default function AgeCalculator() {
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4 glow-text">
-            <Cake className="inline-block mr-4 text-primary" size={60} />
-            Age Calculator
+          <h1 className="text-5xl font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3">
+            Time Keeper
           </h1>
-          <p className="text-xl text-muted-foreground">Discover your life's journey in beautiful detail</p>
+          <p className="text-lg text-muted-foreground">Track the moments that matter</p>
         </motion.div>
 
         {/* Main Calculator Section */}
