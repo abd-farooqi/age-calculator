@@ -186,15 +186,29 @@ export default function AgeCalculator() {
   ] : [];
 
   return (
-    <div className="min-h-screen py-8 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen py-12 px-4 relative">
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4 glow-text">
-            <Cake className="inline-block mr-4 text-primary" size={60} aria-hidden="true" />
-            Age Calculator
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center justify-center mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent blur-2xl opacity-50 animate-pulse"></div>
+              <Cake className="relative text-primary drop-shadow-lg" size={80} aria-hidden="true" />
+            </div>
+          </div>
+          <h1 className="text-7xl md:text-8xl font-black mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent glow-text">
+              Age Calculator
+            </span>
           </h1>
-          <p className="text-xl text-muted-foreground">Discover your life's journey in beautiful detail</p>
+          <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
+            Discover your life's journey in <span className="text-primary font-semibold">beautiful detail</span>
+          </p>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <div className="h-1 w-20 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full"></div>
+            <div className="h-1 w-1 bg-primary rounded-full"></div>
+            <div className="h-1 w-20 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full"></div>
+          </div>
         </div>
 
         {/* Main Calculator Section */}
@@ -221,12 +235,15 @@ export default function AgeCalculator() {
                   <Button
                     onClick={handleCalculate}
                     disabled={!birthDate || isCalculating}
-                    className="w-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all duration-300 hover:scale-105 py-4 text-lg font-semibold"
+                    className="w-full bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl hover:shadow-primary/50 transition-all duration-500 hover:scale-105 py-6 text-lg font-bold relative overflow-hidden group"
                     data-testid="button-calculate"
                     aria-label="Calculate your age"
                   >
-                    <Calculator className="mr-2" aria-hidden="true" />
-                    {isCalculating ? 'Calculating...' : 'Calculate Age'}
+                    <span className="absolute inset-0 bg-gradient-to-r from-accent via-primary to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+                    <span className="relative flex items-center justify-center">
+                      <Calculator className="mr-2" aria-hidden="true" />
+                      {isCalculating ? 'Calculating...' : 'Calculate Age'}
+                    </span>
                   </Button>
                 </div>
               </CardContent>
@@ -242,48 +259,66 @@ export default function AgeCalculator() {
                   Your Age Right Now
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <AnimatedNumber 
-                      value={age?.years || 0} 
-                      className="text-4xl font-bold text-primary mb-2" 
-                    />
-                    <div className="text-muted-foreground font-medium">Years</div>
+                  <div className="text-center group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-primary/20 blur-xl group-hover:bg-primary/30 transition-all duration-300 rounded-full"></div>
+                      <AnimatedNumber 
+                        value={age?.years || 0} 
+                        className="relative text-5xl font-black text-primary mb-2" 
+                      />
+                    </div>
+                    <div className="text-muted-foreground font-semibold text-sm uppercase tracking-wider">Years</div>
                   </div>
-                  <div className="text-center">
-                    <AnimatedNumber 
-                      value={age?.months || 0} 
-                      className="text-4xl font-bold text-secondary mb-2" 
-                    />
-                    <div className="text-muted-foreground font-medium">Months</div>
+                  <div className="text-center group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-secondary/20 blur-xl group-hover:bg-secondary/30 transition-all duration-300 rounded-full"></div>
+                      <AnimatedNumber 
+                        value={age?.months || 0} 
+                        className="relative text-5xl font-black text-secondary mb-2" 
+                      />
+                    </div>
+                    <div className="text-muted-foreground font-semibold text-sm uppercase tracking-wider">Months</div>
                   </div>
-                  <div className="text-center">
-                    <AnimatedNumber 
-                      value={age?.days || 0} 
-                      className="text-4xl font-bold text-accent mb-2" 
-                    />
-                    <div className="text-muted-foreground font-medium">Days</div>
+                  <div className="text-center group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-accent/20 blur-xl group-hover:bg-accent/30 transition-all duration-300 rounded-full"></div>
+                      <AnimatedNumber 
+                        value={age?.days || 0} 
+                        className="relative text-5xl font-black text-accent mb-2" 
+                      />
+                    </div>
+                    <div className="text-muted-foreground font-semibold text-sm uppercase tracking-wider">Days</div>
                   </div>
-                  <div className="text-center">
-                    <AnimatedNumber 
-                      value={age?.hours || 0} 
-                      className="text-2xl font-bold text-primary mb-2" 
-                    />
-                    <div className="text-muted-foreground text-sm">Hours</div>
+                  <div className="text-center group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-primary/20 blur-lg group-hover:bg-primary/30 transition-all duration-300 rounded-full"></div>
+                      <AnimatedNumber 
+                        value={age?.hours || 0} 
+                        className="relative text-3xl font-bold text-primary mb-2" 
+                      />
+                    </div>
+                    <div className="text-muted-foreground text-xs uppercase tracking-wide">Hours</div>
                   </div>
-                  <div className="text-center">
-                    <AnimatedNumber 
-                      value={age?.minutes || 0} 
-                      className="text-2xl font-bold text-secondary mb-2" 
-                    />
-                    <div className="text-muted-foreground text-sm">Minutes</div>
+                  <div className="text-center group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-secondary/20 blur-lg group-hover:bg-secondary/30 transition-all duration-300 rounded-full"></div>
+                      <AnimatedNumber 
+                        value={age?.minutes || 0} 
+                        className="relative text-3xl font-bold text-secondary mb-2" 
+                      />
+                    </div>
+                    <div className="text-muted-foreground text-xs uppercase tracking-wide">Minutes</div>
                   </div>
-                  <div className="text-center">
-                    <AnimatedNumber 
-                      value={age?.seconds || 0} 
-                      className="text-2xl font-bold text-accent mb-2" 
-                      duration={500}
-                    />
-                    <div className="text-muted-foreground text-sm">Seconds</div>
+                  <div className="text-center group">
+                    <div className="relative inline-block">
+                      <div className="absolute inset-0 bg-accent/20 blur-lg group-hover:bg-accent/30 transition-all duration-300 rounded-full"></div>
+                      <AnimatedNumber 
+                        value={age?.seconds || 0} 
+                        className="relative text-3xl font-bold text-accent mb-2" 
+                        duration={500}
+                      />
+                    </div>
+                    <div className="text-muted-foreground text-xs uppercase tracking-wide">Seconds</div>
                   </div>
                 </div>
               </CardContent>
