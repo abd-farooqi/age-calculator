@@ -3,25 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(240, 25%, 7%);
+  --background: hsl(222, 35%, 6%);
   --foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 20%, 12%);
+  --card: hsl(220, 28%, 11%);
   --card-foreground: hsl(0, 0%, 98%);
   --popover: hsl(240, 20%, 12%);
   --popover-foreground: hsl(0, 0%, 98%);
-  --primary: hsl(280, 100%, 70%);
-  --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(200, 100%, 60%);
-  --secondary-foreground: hsl(0, 0%, 100%);
-  --muted: hsl(240, 20%, 20%);
+  --primary: hsl(0, 0%, 98%);
+  --primary-foreground: hsl(222, 35%, 6%);
+  --secondary: hsl(0, 0%, 78%);
+  --secondary-foreground: hsl(222, 35%, 6%);
+  --muted: hsl(220, 24%, 18%);
   --muted-foreground: hsl(240, 5%, 70%);
-  --accent: hsl(330, 100%, 65%);
+  --accent: hsl(0, 0%, 90%);
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 85%, 60%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --border: hsl(240, 20%, 20%);
-  --input: hsl(240, 20%, 15%);
-  --ring: hsl(280, 100%, 70%);
+  --border: hsl(220, 22%, 25%);
+  --input: hsl(220, 25%, 14%);
+  --ring: hsl(0, 0%, 100%);
   --chart-1: hsl(280, 100%, 70%);
   --chart-2: hsl(200, 100%, 60%);
   --chart-3: hsl(45, 100%, 60%);
@@ -51,26 +51,34 @@
   --spacing: 0.25rem;
 }
 
+:root[data-contrast="high"] {
+  --foreground: hsl(0, 0%, 100%);
+  --muted-foreground: hsl(0, 0%, 90%);
+  --border: hsl(0, 0%, 80%);
+  --primary: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 95%);
+}
+
 .dark {
-  --background: hsl(240, 23%, 9%);
+  --background: hsl(222, 35%, 6%);
   --foreground: hsl(0, 0%, 95%);
-  --card: hsl(240, 19%, 16%);
+  --card: hsl(220, 28%, 11%);
   --card-foreground: hsl(0, 0%, 95%);
   --popover: hsl(240, 19%, 16%);
   --popover-foreground: hsl(0, 0%, 95%);
-  --primary: hsl(198, 93%, 60%);
-  --primary-foreground: hsl(240, 23%, 9%);
-  --secondary: hsl(270, 95%, 75%);
-  --secondary-foreground: hsl(240, 23%, 9%);
-  --muted: hsl(240, 19%, 16%);
+  --primary: hsl(0, 0%, 98%);
+  --primary-foreground: hsl(222, 35%, 6%);
+  --secondary: hsl(0, 0%, 78%);
+  --secondary-foreground: hsl(222, 35%, 6%);
+  --muted: hsl(220, 24%, 18%);
   --muted-foreground: hsl(240, 5%, 65%);
-  --accent: hsl(270, 95%, 75%);
+  --accent: hsl(0, 0%, 90%);
   --accent-foreground: hsl(240, 23%, 9%);
   --destructive: hsl(356.3033, 90.5579%, 54.3137%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --border: hsl(240, 19%, 27%);
-  --input: hsl(240, 19%, 16%);
-  --ring: hsl(198, 93%, 60%);
+  --border: hsl(220, 22%, 25%);
+  --input: hsl(220, 25%, 14%);
+  --ring: hsl(0, 0%, 100%);
   --chart-1: hsl(198, 93%, 60%);
   --chart-2: hsl(270, 95%, 75%);
   --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
@@ -97,7 +105,7 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    background: radial-gradient(ellipse at top, #1a0a2e 0%, #0d0517 50%, #000000 100%);
+    background: #070b14;
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
@@ -111,9 +119,9 @@
     right: 0;
     bottom: 0;
     background: 
-      radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+      radial-gradient(circle at 15% 20%, rgba(30, 58, 95, 0.28) 0%, transparent 48%),
+      radial-gradient(circle at 85% 75%, rgba(54, 35, 82, 0.22) 0%, transparent 48%),
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.025) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
   }
@@ -121,24 +129,148 @@
   input[type="date"] {
     color-scheme: dark;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 50;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  color: #111111;
+  border-radius: 0.5rem;
+}
+
+.skip-link:focus {
+  top: 1rem;
 }
 
 @layer components {
+  .instrument-shell {
+    background-image: linear-gradient(rgba(130, 160, 205, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(130, 160, 205, 0.045) 1px, transparent 1px);
+    background-size: 42px 42px;
+  }
+
+  .instrument-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 2.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    padding-bottom: 0.75rem;
+  }
+
+  .instrument-brand {
+    color: hsl(0, 0%, 98%);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+  }
+
+  .instrument-brand span {
+    color: hsl(0, 0%, 65%);
+    margin-right: 0.45rem;
+  }
+
+  .eyebrow {
+    color: hsl(0, 0%, 70%);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+  }
+
+  .instrument-hero h1 {
+    letter-spacing: -0.055em;
+    text-shadow: 0 0 28px rgba(255, 255, 255, 0.16);
+  }
+
+  .portal-core {
+    width: 7rem;
+    height: 7rem;
+    display: grid;
+    place-items: center;
+    margin: 0 auto;
+  }
+
+  .portal-ring {
+    position: absolute;
+    width: 6.5rem;
+    height: 6.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 9999px;
+    transform: rotate(25deg) skewX(-12deg);
+  }
+
+  .portal-ring-one { animation: portalSpin 9s linear infinite; }
+  .portal-ring-two { width: 5.25rem; height: 7.25rem; opacity: 0.55; animation: portalSpin 7s linear infinite reverse; }
+
+  .birthday-orbit {
+    width: 100%;
+    height: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .birthday-orbit span {
+    position: absolute;
+    left: 50%;
+    top: -0.55rem;
+    color: var(--primary);
+    animation: orbitMarker 4s ease-in-out infinite;
+  }
+
+  .action-button {
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 0.8rem 1.15rem;
+    font-weight: 700;
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  }
+
+  .action-button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); }
+  .action-primary { background: #f5f5f5 !important; color: #080a0f !important; }
+  .action-primary:hover { background: #ffffff !important; }
+  .action-secondary { background: #171d2a !important; color: #ffffff !important; }
+  .action-secondary:hover { background: #303b52 !important; }
+
+  .result-reveal { animation: resultReveal 500ms ease both; }
+  .result-celebrate { animation: resultCelebrate 900ms ease both; }
+
+  @keyframes portalSpin { to { transform: rotate(385deg) skewX(-12deg); } }
+  @keyframes orbitMarker { 0%, 100% { transform: translateX(-5.5rem); } 50% { transform: translateX(5.5rem); } }
+  @keyframes resultReveal { from { opacity: 0.35; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes resultCelebrate { 0%, 100% { transform: scale(1); } 35% { transform: scale(1.015); } }
+
   .glass-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(145deg, rgba(19, 29, 45, 0.96), rgba(10, 13, 22, 0.98));
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(145, 170, 210, 0.2);
     box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      0 12px 36px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(150, 230, 255, 0.08);
     transition: all 0.3s ease;
   }
 
   .hover-scale:hover {
-    transform: translateY(-4px) scale(1.01);
+    transform: translateY(-3px);
     box-shadow: 
-      0 12px 40px rgba(168, 85, 247, 0.3),
-      0 0 60px rgba(59, 130, 246, 0.2),
+      0 12px 40px rgba(3, 8, 20, 0.5),
+      0 0 60px rgba(68, 86, 130, 0.12),
       inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
 
