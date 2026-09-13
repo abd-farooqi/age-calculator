@@ -302,7 +302,10 @@ export default function AgeCalculator() {
             <a href="#explore" className="hover:text-foreground">EXPLORE</a>
             <a href="#faq-heading" className="hover:text-foreground">METHOD</a>
           </div>
-          <div className="text-[10px] tracking-widest text-secondary" aria-label="Calculator status">● LOCAL / PRIVATE</div>
+          <div className="flex items-center gap-3">
+            <a className="header-discord-link" href="https://discord.com/oauth2/authorize?client_id=1548786562701992216&amp;permissions=3072&amp;scope=bot%20applications.commands" target="_blank" rel="noreferrer">ADD TO DISCORD</a>
+            <div className="hidden xs:block text-[10px] tracking-widest text-secondary" aria-label="Calculator status">● LOCAL / PRIVATE</div>
+          </div>
         </nav>
         {/* Header */}
         <header className="instrument-hero text-center mb-12 sm:mb-16 animate-fade-in">

@@ -187,6 +187,22 @@
     margin-right: 0.45rem;
   }
 
+  .header-discord-link {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 0.35rem;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 0.55rem 0.7rem;
+    transition: background 180ms ease, color 180ms ease;
+  }
+
+  .header-discord-link:hover {
+    background: #ffffff;
+    color: #080a0f;
+  }
+
   .eyebrow {
     color: hsl(0, 0%, 70%);
     font-family: var(--font-mono);
