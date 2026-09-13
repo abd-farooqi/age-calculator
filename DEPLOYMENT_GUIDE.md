@@ -1,4 +1,4 @@
-# 🚀 Age Calculator - Complete Deployment Guide
+# 🚀 Agewise - Complete Deployment Guide
 
 ## 🔧 **FIXING LOCAL DEVELOPMENT ISSUES**
 
@@ -264,7 +264,7 @@ npm run start
 
 ## 🎉 **SUCCESS!**
 
-Once deployed, your Age Calculator will be live with:
+Once deployed, Agewise will be live with:
 - ✨ Beautiful particle animations
 - 🎂 Real-time age calculations  
 - 📊 Life milestone progress bars
