@@ -1,11 +1,11 @@
 {
-  "name": "Age Calculator",
-  "short_name": "Age Calc",
-  "description": "Beautiful age calculator to track your life journey",
+  "name": "Agewise",
+  "short_name": "Agewise",
+  "description": "Calculate exact age, dates, milestones, and planetary age conversions.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f23",
-  "theme_color": "#0f0f23",
+  "background_color": "#070b14",
+  "theme_color": "#070b14",
   "icons": [
     {
       "src": "/icon-192.svg",
