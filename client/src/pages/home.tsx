@@ -14,7 +14,7 @@ export default function Home() {
             <p className="mt-3 max-w-2xl text-muted-foreground">Calculate exact ages directly in Discord with a fast, privacy-friendly slash command.</p>
             <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <a className="action-button action-primary inline-flex" href="https://discord.com/oauth2/authorize?client_id=1548786562701992216&amp;permissions=3072&amp;scope=bot%20applications.commands" target="_blank" rel="noreferrer">Add Agewise to Discord</a>
-              <code className="rounded bg-black/40 px-3 py-2 text-sm text-muted-foreground">/age date:15-08-2008</code>
+              <code className="rounded bg-black/40 px-3 py-2 text-sm text-muted-foreground">/age date:DD-MM-YYYY</code>
             </div>
             <p className="mt-5 text-xs text-muted-foreground">No account required. Your bot token stays private, and the calculator API is documented publicly.</p>
           </div>
