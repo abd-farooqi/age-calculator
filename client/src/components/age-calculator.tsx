@@ -5,16 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import AnimatedNumber from "./animated-number";
 import html2canvas from "html2canvas";
+import { calculateAge, parseBirthDate, type AgeData } from "@shared/age";
 import { 
   Calendar, 
   Clock, 
   Gift, 
-  TrendingUp, 
+  TrendingUp,
   Sun, 
-  Heart, 
-  Moon,
-  Bed,
-  Globe,
   CalendarDays,
   Lightbulb,
   Calculator,
@@ -23,16 +20,6 @@ import {
   Share2,
   Star
 } from "lucide-react";
-
-interface AgeData {
-  years: number;
-  months: number;
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  totalMs: number;
-}
 
 interface HijriDate {
   year: number;
@@ -49,14 +36,34 @@ interface CountdownData {
 
 export default function AgeCalculator() {
   const [birthDate, setBirthDate] = useState("");
+  const [calculationMode, setCalculationMode] = useState<'now' | 'date'>('now');
+  const [asOfDate, setAsOfDate] = useState("");
+  const [compareDate, setCompareDate] = useState("");
+  const [showCompare, setShowCompare] = useState(false);
+  const [highContrast, setHighContrast] = useState(false);
+  const [sleepHours, setSleepHours] = useState(8);
+  const [heartRate, setHeartRate] = useState(72);
+  const [isCelebrating, setIsCelebrating] = useState(false);
   const [age, setAge] = useState<AgeData | null>(null);
   const [countdown, setCountdown] = useState<CountdownData | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const sharedDate = new URLSearchParams(window.location.search).get('dob');
+    if (sharedDate && parseBirthDate(sharedDate)) setBirthDate(sharedDate);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.contrast = highContrast ? 'high' : 'normal';
+  }, [highContrast]);
+
   // Get today's date for max attribute
   const today = new Date().toISOString().split('T')[0];
+  const calculationDate = calculationMode === 'date' && asOfDate
+    ? new Date(`${asOfDate}T23:59:59`)
+    : new Date();
 
   // Convert Gregorian to Hijri (Islamic Calendar)
   const gregorianToHijri = (date: Date): HijriDate => {
@@ -87,25 +94,6 @@ export default function AgeCalculator() {
     }
     
     return { year: 0, month: 0, day: 0 };
-  };
-
-  const calculateAge = (birthDate: string): AgeData | null => {
-    const now = new Date();
-    const birth = new Date(birthDate);
-    
-    if (birth > now) return null;
-    
-    const diffMs = now.getTime() - birth.getTime();
-    const ageDate = new Date(diffMs);
-    
-    const years = ageDate.getUTCFullYear() - 1970;
-    const months = ageDate.getUTCMonth();
-    const days = ageDate.getUTCDate() - 1;
-    const hours = ageDate.getUTCHours();
-    const minutes = ageDate.getUTCMinutes();
-    const seconds = ageDate.getUTCSeconds();
-    
-    return { years, months, days, hours, minutes, seconds, totalMs: diffMs };
   };
 
   const calculateBirthdayCountdown = (birthDate: string): CountdownData => {
@@ -159,7 +147,7 @@ export default function AgeCalculator() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'My Age Calculator Results',
+           title: 'My Agewise Results',
           text: shareText,
           url: window.location.href,
         });
@@ -181,7 +169,7 @@ export default function AgeCalculator() {
     if (!birthDate) return;
     
     setIsCalculating(true);
-    const ageData = calculateAge(birthDate);
+    const ageData = calculateAge(birthDate, calculationDate);
     
     if (!ageData) {
       alert('Please enter a valid birth date (not in the future)');
@@ -190,6 +178,9 @@ export default function AgeCalculator() {
     }
     
     setAge(ageData);
+    setIsCelebrating(true);
+    window.setTimeout(() => setIsCelebrating(false), 900);
+    window.history.replaceState({}, '', `/?dob=${encodeURIComponent(birthDate)}`);
     setCountdown(calculateBirthdayCountdown(birthDate));
     setIsCalculating(false);
   };
@@ -199,7 +190,7 @@ export default function AgeCalculator() {
     if (!birthDate || !age) return;
     
     const interval = setInterval(() => {
-      const currentAge = calculateAge(birthDate);
+      const currentAge = calculateAge(birthDate, calculationDate);
       const currentCountdown = calculateBirthdayCountdown(birthDate);
       
       if (currentAge) setAge(currentAge);
@@ -207,20 +198,14 @@ export default function AgeCalculator() {
     }, 1000);
     
     return () => clearInterval(interval);
-  }, [birthDate, age]);
+  }, [birthDate, age, calculationMode, asOfDate]);
 
-  const milestones = [
-    { name: 'Sweet 16', target: 16, unit: 'years' },
-    { name: 'Adult (18)', target: 18, unit: 'years' },
-    { name: 'Quarter Century', target: 25, unit: 'years' },
-    { name: 'The Big 3-0', target: 30, unit: 'years' },
-    { name: 'Wise 40s', target: 40, unit: 'years' },
-    { name: 'Half Century', target: 50, unit: 'years' },
-    { name: '1000 Days Milestone', target: 1000, unit: 'days', current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 },
-    { name: '5000 Days Milestone', target: 5000, unit: 'days', current: age ? Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) : 0 },
-    { name: '1 Million Minutes', target: 1000000, unit: 'minutes', current: age ? Math.floor(age.totalMs / (1000 * 60)) : 0 },
-    { name: '1 Billion Seconds', target: 1000000000, unit: 'seconds', current: age ? Math.floor(age.totalMs / 1000) : 0 }
-  ];
+  const comparison = showCompare && birthDate && compareDate
+    ? (() => {
+        const [start, end] = [birthDate, compareDate].sort();
+        return calculateAge(start, parseBirthDate(end) || undefined);
+      })()
+    : null;
 
   const alternativeUnits = age ? [
     { 
@@ -238,11 +223,6 @@ export default function AgeCalculator() {
       value: Math.floor(age.totalMs / (1000 * 60 * 60)), 
       icon: Clock 
     },
-    { 
-      name: 'Heartbeats (~72bpm)', 
-      value: Math.floor(age.totalMs / 1000 * 1.2), 
-      icon: Heart 
-    }
   ] : [];
 
   // Hijri (Islamic) Calendar Age
@@ -269,80 +249,103 @@ export default function AgeCalculator() {
     return { years, months, days };
   })() : null;
 
-  // Life Progress (assuming 80 year average lifespan)
-  const lifeProgress = age ? {
-    years: Math.min((age.years / 80) * 100, 100),
-    decades: Math.min((age.years / 10) * 100, 1000),
-    quarters: Math.min((age.years / 20) * 100, 400),
-  } : null;
+  const verifiedFacts = birthDate ? (() => {
+    const birth = parseBirthDate(birthDate);
+    if (!birth) return null;
+    const startOfYear = new Date(birth.getFullYear(), 0, 1);
+    const dayOfYear = Math.floor((birth.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const leapDays = Array.from({ length: new Date().getFullYear() - birth.getFullYear() + 1 }, (_, index) => birth.getFullYear() + index)
+      .filter((year) => year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)).length;
+    return {
+      weekday: birth.toLocaleDateString(undefined, { weekday: 'long' }),
+      dayOfYear,
+      leapDays,
+    };
+  })() : null;
 
-  const funFacts = age ? [
-    { 
-      icon: Moon, 
-      text: `You've witnessed ${Math.floor(age.totalMs / (1000 * 60 * 60 * 24)).toLocaleString()} sunrises` 
-    },
-    { 
-      icon: Bed, 
-      text: `You've slept roughly ${Math.floor(Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) / 3).toLocaleString()} days (assuming 8hrs/day)` 
-    },
-    { 
-      icon: Globe, 
-      text: `Earth traveled ${(age.years * 584000000).toLocaleString()} miles around the sun with you` 
-    },
-    { 
-      icon: Heart, 
-      text: `Your heart beat about ${Math.floor(age.totalMs / 1000 * 1.2).toLocaleString()} times (~72 bpm)` 
-    },
-    { 
-      icon: Cake, 
-      text: `You blew out ${age.years * (age.years + 1) / 2} birthday candles total` 
-    },
-    { 
-      icon: CalendarDays, 
-      text: `That's ${Math.floor(Math.floor(age.totalMs / (1000 * 60 * 60 * 24)) / 7).toLocaleString()} weeks of your unique journey` 
-    }
-  ] : [];
+  const planetaryAges = age ? [
+    { name: 'Mercury', period: 87.97 },
+    { name: 'Venus', period: 224.70 },
+    { name: 'Earth', period: 365.25 },
+    { name: 'Moon', period: 27.32 },
+    { name: 'Mars', period: 686.98 },
+    { name: 'Jupiter', period: 4332.59 },
+    { name: 'Saturn', period: 10759.22 },
+    { name: 'Uranus', period: 30688.5 },
+    { name: 'Neptune', period: 60182 },
+    { name: 'Pluto', period: 90560 },
+  ].map((planet) => ({ ...planet, age: age.totalMs / (planet.period * 86400000) })) : [];
+
+  const upcomingMilestones = age && birthDate ? [
+    { label: 'Next 1,000 days', unit: 1000 * 86400000 },
+    { label: 'Next 10,000 days', unit: 10000 * 86400000 },
+    { label: 'Next million minutes', unit: 1000000 * 60000 },
+    { label: 'Next billion seconds', unit: 1000000000 * 1000 },
+  ].map((milestone) => {
+    const elapsed = age.totalMs;
+    const target = Math.ceil(elapsed / milestone.unit) * milestone.unit;
+    return { ...milestone, date: new Date(parseBirthDate(birthDate)!.getTime() + target) };
+  }) : [];
+
+  // The calculator intentionally does not estimate lifespan or biological facts.
+  const lifeProgress = null as { years: number; decades: number; quarters: number } | null;
+  const milestones: any[] = [];
+  const funFacts: any[] = [];
 
   return (
-    <div className="min-h-screen py-12 px-4 relative">
+    <main id="main-content" className="instrument-shell min-h-screen py-6 sm:py-12 px-3 sm:px-4 relative">
       <div className="max-w-7xl mx-auto relative z-10" ref={exportRef}>
+        <nav className="instrument-nav mb-10" aria-label="Primary navigation">
+          <a href="#main-content" className="instrument-brand"><span aria-hidden="true">◈</span> AGEWISE</a>
+          <div className="hidden sm:flex items-center gap-5 text-xs tracking-widest text-muted-foreground">
+            <a href="#calculator" className="hover:text-foreground">CALCULATOR</a>
+            <a href="#explore" className="hover:text-foreground">EXPLORE</a>
+            <a href="#faq-heading" className="hover:text-foreground">METHOD</a>
+          </div>
+          <div className="text-[10px] tracking-widest text-secondary" aria-label="Calculator status">● LOCAL / PRIVATE</div>
+        </nav>
         {/* Header */}
-        <div className="text-center mb-16 animate-fade-in">
+        <header className="instrument-hero text-center mb-12 sm:mb-16 animate-fade-in">
           <div className="inline-flex items-center justify-center mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent blur-2xl opacity-50 animate-pulse"></div>
-              <Cake className="relative text-primary drop-shadow-lg" size={80} aria-hidden="true" />
+             <div className="portal-core relative">
+               <div className="portal-ring portal-ring-one" aria-hidden="true"></div>
+               <div className="portal-ring portal-ring-two" aria-hidden="true"></div>
+               <Cake className="relative text-primary drop-shadow-lg" size={80} aria-hidden="true" />
             </div>
           </div>
-          <h1 className="text-7xl md:text-8xl font-black mb-6 leading-tight">
+          <div className="eyebrow mb-4">PERSONAL TIME INSTRUMENT / 01</div>
+          <h1 className="text-5xl sm:text-7xl md:text-8xl font-black mb-5 leading-tight break-words">
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent glow-text">
-              Age Calculator
+              Agewise
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
-            Discover your life's journey in <span className="text-primary font-semibold">beautiful detail</span>
+          <p className="text-base sm:text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
+            Measure the exact time you have lived, without predictions or assumptions.
           </p>
+          <button type="button" className="mt-4 rounded border border-border px-3 py-2 text-sm" onClick={() => setHighContrast((value) => !value)} aria-pressed={highContrast}>
+            {highContrast ? 'Standard contrast' : 'High contrast'}
+          </button>
           <div className="mt-6 flex items-center justify-center gap-3">
             <div className="h-1 w-20 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full"></div>
             <div className="h-1 w-1 bg-primary rounded-full"></div>
             <div className="h-1 w-20 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full"></div>
           </div>
-        </div>
+        </header>
 
         {/* Share Buttons */}
         {age && (
-          <div className="flex justify-center gap-4 mb-8 animate-fade-in">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-8 animate-fade-in">
             <Button
               onClick={handleExportImage}
               disabled={isExporting}
-              className="bg-gradient-to-r from-primary to-secondary hover:shadow-lg hover:shadow-primary/50 transition-all duration-300"
+              className="action-button action-primary w-full sm:w-auto"
             >
               <Download className="mr-2" size={18} />
               {isExporting ? 'Exporting...' : 'Download Image'}
             </Button>
             <Button
               onClick={handleShare}
-              className="bg-gradient-to-r from-secondary to-accent hover:shadow-lg hover:shadow-secondary/50 transition-all duration-300"
+              className="action-button action-secondary w-full sm:w-auto"
             >
               <Share2 className="mr-2" size={18} />
               Share Results
@@ -351,17 +354,19 @@ export default function AgeCalculator() {
         )}
 
         {/* Main Calculator Section */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-8">
+        <div id="calculator" className="grid lg:grid-cols-3 gap-5 sm:gap-8 mb-8 scroll-mt-6">
           {/* Date Picker Card */}
           <div className="lg:col-span-1 animate-slide-in-left">
             <Card className="glass-card hover-scale" data-testid="date-picker-card">
               <CardContent className="p-8">
-                <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-6 flex items-center">
                   <Calendar className="text-primary mr-3" aria-hidden="true" />
                   Birth Date
                 </h2>
                 <div className="space-y-4">
+                  <label htmlFor="birth-date" className="text-sm font-medium">Date of birth</label>
                   <Input
+                    id="birth-date"
                     type="date"
                     value={birthDate}
                     onChange={(e) => setBirthDate(e.target.value)}
@@ -371,6 +376,26 @@ export default function AgeCalculator() {
                     aria-label="Enter your birth date"
                     required
                   />
+                  <label htmlFor="calculation-mode" className="text-sm font-medium">Calculate age at</label>
+                  <select id="calculation-mode" value={calculationMode} onChange={(e) => setCalculationMode(e.target.value as 'now' | 'date')} className="w-full rounded-md border border-input bg-background px-3 py-3 text-foreground">
+                    <option value="now">Right now</option>
+                    <option value="date">A specific date</option>
+                  </select>
+                  {calculationMode === 'date' && (
+                    <>
+                      <label htmlFor="as-of-date" className="text-sm font-medium">Age on date</label>
+                      <Input id="as-of-date" type="date" value={asOfDate} max={today} onChange={(e) => setAsOfDate(e.target.value)} required />
+                    </>
+                  )}
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <input type="checkbox" checked={showCompare} onChange={(e) => setShowCompare(e.target.checked)} /> Compare with another date
+                  </label>
+                  {showCompare && (
+                    <>
+                      <label htmlFor="compare-date" className="text-sm font-medium">Second date of birth</label>
+                      <Input id="compare-date" type="date" value={compareDate} max={today} onChange={(e) => setCompareDate(e.target.value)} />
+                    </>
+                  )}
                   <Button
                     onClick={handleCalculate}
                     disabled={!birthDate || isCalculating}
@@ -391,9 +416,9 @@ export default function AgeCalculator() {
 
           {/* Main Age Display */}
           <div className="lg:col-span-2 animate-scale-in">
-            <Card className="glass-card hover-scale" data-testid="main-age-display">
+            <Card className={`glass-card hover-scale ${age ? 'result-reveal' : ''} ${isCelebrating ? 'result-celebrate' : ''}`} data-testid="main-age-display" aria-live="polite">
               <CardContent className="p-8">
-                <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-6 flex items-center">
                   <Clock className="text-secondary mr-3" aria-hidden="true" />
                   Your Age Right Now
                 </h2>
@@ -470,10 +495,11 @@ export default function AgeCalculator() {
           <div className="mb-8 animate-slide-up">
             <Card className="glass-card hover-scale" data-testid="birthday-countdown">
               <CardContent className="p-8">
-                <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-6 flex items-center">
                   <Gift className="text-primary mr-3" aria-hidden="true" />
                   Next Birthday Countdown
                 </h2>
+                <div className="birthday-orbit mb-6" aria-hidden="true"><span>✦</span></div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="text-center">
                     <AnimatedNumber 
@@ -547,6 +573,85 @@ export default function AgeCalculator() {
                     </div>
                     <div className="text-muted-foreground font-semibold text-sm uppercase tracking-wider">Days</div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {verifiedFacts && (
+          <div className="mb-8 animate-slide-up">
+            <Card className="glass-card hover-scale" data-testid="verified-date-facts">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                  <CalendarDays className="text-accent mr-3" aria-hidden="true" />
+                  Verified Date Facts
+                </h2>
+                <div className="grid md:grid-cols-3 gap-6 text-center">
+                  <div><div className="text-2xl font-bold text-primary">{verifiedFacts.weekday}</div><div className="text-sm text-muted-foreground">Day you were born</div></div>
+                  <div><div className="text-2xl font-bold text-secondary">{verifiedFacts.dayOfYear}</div><div className="text-sm text-muted-foreground">Day of your birth year</div></div>
+                  <div><div className="text-2xl font-bold text-accent">{verifiedFacts.leapDays}</div><div className="text-sm text-muted-foreground">Leap days in the selected period</div></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {comparison && (
+          <div className="mb-8 animate-slide-up">
+            <Card className="glass-card" data-testid="age-comparison">
+              <CardContent className="p-8">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-2">Age Difference</h2>
+                <p className="text-muted-foreground">The exact calendar difference between the two selected dates.</p>
+                <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                  {(['years', 'months', 'days', 'hours'] as const).map((unit) => (
+                    <div key={unit} className="rounded-lg border border-border p-3">
+                      <div className="text-2xl font-bold text-primary">{comparison[unit]}</div>
+                      <div className="text-sm text-muted-foreground capitalize">{unit}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {upcomingMilestones.length > 0 && (
+          <div className="mb-8 animate-slide-up">
+            <Card className="glass-card hover-scale" data-testid="exact-milestones">
+              <CardContent className="p-8">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-2">Upcoming Exact Milestones</h2>
+                <p className="text-muted-foreground mb-6">Calendar dates calculated directly from your birth date.</p>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {upcomingMilestones.map((milestone) => (
+                    <div key={milestone.label} className="milestone-card rounded-lg p-4 text-center">
+                      <div className="font-medium">{milestone.label}</div>
+                      <time className="block mt-2 text-primary font-bold" dateTime={milestone.date.toISOString().slice(0, 10)}>
+                        {milestone.date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </time>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {planetaryAges.length > 0 && (
+          <div className="mb-8 animate-slide-up">
+            <div id="explore" className="scroll-mt-6" />
+            <Card className="glass-card hover-scale" data-testid="planetary-ages">
+              <CardContent className="p-8">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-2">Your Age on Other Worlds</h2>
+                <p className="text-muted-foreground mb-6">A calendar conversion using NASA planetary orbital periods, not a lifespan estimate.</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-center">
+                  {planetaryAges.map((planet) => (
+                    <div key={planet.name} className="age-unit-card rounded-lg p-4">
+                      <div className="font-medium">{planet.name}</div>
+                      <div className="text-2xl font-bold text-primary mt-2">{planet.age.toFixed(2)}</div>
+                      <div className="text-xs text-muted-foreground">local years</div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -692,7 +797,7 @@ export default function AgeCalculator() {
         )}
 
         {/* Life Milestones Progress */}
-        {age && (
+        {milestones.length > 0 && age && (
           <div className="mb-8 animate-slide-up">
             <Card className="glass-card hover-scale" data-testid="life-milestones">
               <CardContent className="p-8">
@@ -754,7 +859,28 @@ export default function AgeCalculator() {
         )}
 
         {/* Fun Facts */}
-        {funFacts.length > 0 && (
+        {age && (
+          <div className="mb-8 animate-slide-up">
+            <Card className="glass-card" data-testid="optional-estimates">
+              <CardContent className="p-8">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-2">Optional Personal Estimates</h2>
+                <p className="text-muted-foreground mb-6">Estimates use only the settings you choose. They are not facts about you.</p>
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <label className="space-y-2 text-sm font-medium">Sleep per day: {sleepHours} hours
+                    <input type="range" min="0" max="16" step="0.5" value={sleepHours} onChange={(e) => setSleepHours(Number(e.target.value))} className="w-full" />
+                    <span className="block text-muted-foreground font-normal">Estimated sleep: {Math.floor(age.totalMs / 86400000 * sleepHours / 24).toLocaleString()} days</span>
+                  </label>
+                  <label className="space-y-2 text-sm font-medium">Average heart rate: {heartRate} BPM
+                    <input type="range" min="30" max="180" value={heartRate} onChange={(e) => setHeartRate(Number(e.target.value))} className="w-full" />
+                    <span className="block text-muted-foreground font-normal">Estimated beats: {Math.floor(age.totalMs / 1000 * heartRate / 60).toLocaleString()}</span>
+                  </label>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {false && funFacts.length > 0 && (
           <div className="animate-slide-up">
             <Card className="glass-card hover-scale" data-testid="fun-facts">
               <CardContent className="p-8">
@@ -782,6 +908,6 @@ export default function AgeCalculator() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }
