@@ -4,6 +4,12 @@
   
   # Directory that contains the built files
   publish = "dist/public"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/age"
+  to = "/.netlify/functions/age"
+  status = 200
 
 [[redirects]]
   # Redirect all routes to index.html for SPA routing
