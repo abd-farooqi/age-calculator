@@ -7,6 +7,18 @@ export default function Home() {
       <ParticleBackground />
       <div className="relative z-10">
         <AgeCalculator />
+        <section className="relative z-10 mx-auto mb-12 max-w-4xl px-4" aria-labelledby="discord-heading">
+          <div className="glass-card rounded-xl p-6 sm:p-8">
+            <div className="eyebrow mb-3">AGEWISE FOR DISCORD / 02</div>
+            <h2 id="discord-heading" className="text-2xl sm:text-3xl font-bold">Bring Agewise to your server</h2>
+            <p className="mt-3 max-w-2xl text-muted-foreground">Calculate exact ages directly in Discord with a fast, privacy-friendly slash command.</p>
+            <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <a className="action-button action-primary inline-flex" href="https://discord.com/oauth2/authorize?client_id=1548786562701992216&amp;permissions=3072&amp;scope=bot%20applications.commands" target="_blank" rel="noreferrer">Add Agewise to Discord</a>
+              <code className="rounded bg-black/40 px-3 py-2 text-sm text-muted-foreground">/age date:15-08-2008</code>
+            </div>
+            <p className="mt-5 text-xs text-muted-foreground">No account required. Your bot token stays private, and the calculator API is documented publicly.</p>
+          </div>
+        </section>
         <section className="relative z-10 mx-auto max-w-4xl px-4 pb-16" aria-labelledby="faq-heading">
           <h2 id="faq-heading" className="mb-6 text-2xl font-bold">Agewise FAQ</h2>
           <div className="space-y-4 text-muted-foreground">
